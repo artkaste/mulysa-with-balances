@@ -228,7 +228,7 @@ class BusinessLogic:
         if (
             subscription.state == ServiceSubscription.OVERDUE
             and subscription.paid_until
-            and subscription.paid_until > date.today()
+            and subscription.balance > 0
         ):
             subscription.state = ServiceSubscription.ACTIVE
             subscription.save()
@@ -239,8 +239,8 @@ class BusinessLogic:
         # Check if the service becomes overdue
         if (
             subscription.state == ServiceSubscription.ACTIVE
-            and subscription.paid_until
-            and subscription.paid_until < date.today()
+            and subscription.balance
+            and subscription.balance < 0
         ):
             logger.debug(f"{subscription} payment overdue so changing state to OVERDUE")
             subscription.state = ServiceSubscription.OVERDUE
@@ -277,7 +277,7 @@ class BusinessLogic:
                 "newstate": newstate,
             }
         )
-
+    """
     @staticmethod
     def _check_transaction_pays_custominvoice(transaction):
         """
@@ -329,7 +329,7 @@ class BusinessLogic:
                 logger.debug(
                     f"Transaction {transaction} insufficient for invoice {invoice}"
                 )
-
+    """
     @staticmethod
     def _updatesubscription(user, subscription, servicesubscriptions):
         """
@@ -360,10 +360,29 @@ class BusinessLogic:
 
         # Check generic transactions that could pay for this service
         transactions = BankTransaction.objects.filter(
-            reference_number=subscription.reference_number, has_been_used=False
+            reference_number=subscription.reference_number
         ).order_by("date")
 
+        fees = FeeEntry.objects.filter(
+            reference_number=subscription.reference_number
+        ).order_by("date")
+
+        # Calculate the service balance based on 
+        balance
+        for fee in fees:
+            balance -= fee.amount
         for transaction in transactions:
+            transaction.user = subscription.user
+            balance += transaction.amount
+            transaction.save()
+        subscription.balance = balance
+        subscription.save()
+
+        if (balance < 0):
+
+        """
+        for transaction in transactions:
+            # calculate balance from transactions and fee_entry
             if BusinessLogic._transaction_pays_service(
                 transaction, subscription.service
             ):
@@ -378,6 +397,7 @@ class BusinessLogic:
                 )
                 transaction.save()
                 logger.debug(f"Transaction does not pay service {subscription.service}")
+        """
 
     @staticmethod
     def _transaction_pays_service(transaction, service):
@@ -400,6 +420,7 @@ class BusinessLogic:
                 return True
         return False
 
+    """
     @staticmethod
     def _service_paid_by_transaction(servicesubscription, transaction):
         """
@@ -477,3 +498,4 @@ class BusinessLogic:
                     BusinessLogic._check_servicesubscription_state(
                         paid_servicesubscription
                     )
+    """

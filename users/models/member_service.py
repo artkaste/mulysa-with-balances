@@ -21,6 +21,7 @@ class MemberService(models.Model):
         verbose_name="Normal cost of the service",
         validators=[MinValueValidator(0)],
     )
+    
 
     """
     Defines another service that this this service pays for. If this service is paid, the referenced
@@ -49,6 +50,8 @@ class MemberService(models.Model):
         validators=[MinValueValidator(0)],
     )
 
+    # TODO
+    """
     days_per_payment = models.IntegerField(
         verbose_name="How many days of service member gets for a valid payment",
         validators=[MinValueValidator(0)],
@@ -60,12 +63,7 @@ class MemberService(models.Model):
         validators=[MinValueValidator(0)],
     )
 
-    days_before_warning = models.IntegerField(
-        blank=True,
-        null=True,
-        verbose_name="How many days before payment expiration a warning message shall be sent",
-        validators=[MinValueValidator(0)],
-    )
+
 
     days_maximum = models.IntegerField(
         blank=True,
@@ -73,13 +71,24 @@ class MemberService(models.Model):
         verbose_name="How many days of service member can pay at maximum",
         validators=[MinValueValidator(0)],
     )
+    
 
+    """
+
+    days_before_warning = models.IntegerField(
+        blank=True,
+        null=True,
+        verbose_name="How many days service can be in payment pending state before a warning message shall be sent",
+        validators=[MinValueValidator(0)],
+    )
+    
     days_until_suspending = models.IntegerField(
         blank=True,
         null=True,
         verbose_name="How many days service can be in payment pending state until it is moved to suspended state",
         validators=[MinValueValidator(0)],
     )
+    
 
     # This can be used to make "private" services that need to be added by admin to user.
     hidden = models.BooleanField(
@@ -127,14 +136,16 @@ class MemberService(models.Model):
             cs = cs + "(" + str(self.cost_min) + "€ - " + str(self.cost_max) + "€)"
         return cs
 
-    # Returns the period (days per payment) for the service in human-readable string
+    # Returns the period (days per payment) for the service in human-readable string 
+    # TODO 
+    """
     def period_string(self):
         if self.days_per_payment == 31:
             return _("month")
         if self.days_per_payment == 365:
             return _("year")
         return str(self.days_per_payment) + " " + str(_("days"))
-
+    """
     # Returns a list of services that pay for this service
     def paid_by_services(self):
         return MemberService.objects.filter(pays_also_service=self)

@@ -40,13 +40,12 @@ class ServiceSubscription(models.Model):
         default=SUSPENDED,
     )
 
-    # The important paid until date. If this is not set, service has not been used yet or
-    # has been suspended.
-    paid_until = models.DateField(
+    # The user balance in this service
+    balance = models.IntegerField(
         blank=True,
         null=True,
-        verbose_name=_("Paid until"),
-        help_text=_("The service will stay active until this date"),
+        verbose_name=_("Current balance"),
+        help_text=_("Current balance),
     )
 
     # Points to the latest payment that caused paid_until to update
@@ -97,6 +96,8 @@ class ServiceSubscription(models.Model):
         return "(???)"  # Should never happen
 
     # Return number of days left until subscription ends
+    # TODO
+    """
     def days_left(self):
         if self.state != ServiceSubscription.ACTIVE:
             return 0
@@ -108,16 +109,17 @@ class ServiceSubscription(models.Model):
         if daysleft < 0:
             daysleft = 0
         return daysleft
+    
+
+    """
 
     # Return number of days subscription is overdue
     def days_overdue(self):
         if self.state != ServiceSubscription.OVERDUE:
             return 0
 
-        if not self.paid_until:
-            return 0
 
-        days_overdue = -(self.paid_until - datetime.date.today()).days
+        days_overdue = -(self.last_payment.date - datetime.date.today()).days
         if days_overdue < 0:
             days_overdue = 0
         return days_overdue

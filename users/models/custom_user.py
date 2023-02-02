@@ -111,6 +111,17 @@ class CustomUser(AbstractUser):
         default=drfx_settings.LANGUAGE_CODE,
     )
 
+    reference_number = models.CharField(
+        blank=True,
+        null=True,
+        unique=True,
+        verbose_name=_("Reference number for paying invoices"),
+        help_text=_(
+            "Reference number is set by transaction sender and must match this."
+        ),
+        max_length=25,
+    )
+
     # some datetime bits
     created = models.DateTimeField(
         auto_now_add=True,

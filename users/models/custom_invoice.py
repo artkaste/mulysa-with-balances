@@ -13,6 +13,7 @@ class CustomInvoice(models.Model):
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     subscription = models.ForeignKey(ServiceSubscription, on_delete=models.CASCADE)
+    """
     days = models.IntegerField(
         blank=False,
         null=False,
@@ -21,6 +22,7 @@ class CustomInvoice(models.Model):
             "For example value 14 with access right service pays two weeks of access."
         ),
     )
+    """
     # https://en.wikipedia.org/wiki/Creditor_Reference#:~:text=The%20Creditor%20Reference%20is%20an,reference%20will%20be%20entered%20correctly.
     reference_number = models.CharField(
         blank=True,
